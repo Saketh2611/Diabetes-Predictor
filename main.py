@@ -12,7 +12,6 @@ import torch.nn as nn
 
 app = FastAPI()
 
-# Allow frontend -> backend communication
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,29 +20,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load RandomForest
+# Load RandomForest model
 model = joblib.load("AE_RFC.joblib")
 
 
-# Encoder architecture from your Autoencoder
-class Encoder(nn.Module):
-    def __init__(self, input_dim=11, latent_dim=4):
-        super().__init__()
-        self.encoder = nn.Sequential(
-            nn.Linear(input_dim, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, latent_dim)
-        )
+# ------------------------------------
+# CORRECT ENCODER (MATCHES SAVED FILE)
+# ------------------------------------
+encoder = nn.Sequential(
+    nn.Linear(11, 64),
+    nn.ReLU(),
+    nn.Linear(64, 32),
+    nn.ReLU(),
+    nn.Linear(32, 4)
+)
 
-    def forward(self, x):
-        return self.encoder(x)
-
-
-# Load encoder weights (you saved only encoder)
-encoder = Encoder()
-encoder.load_state_dict(torch.load("encoder_model.pth", map_location="cpu"))
+state = torch.load("encoder_model.pth", map_location="cpu")
+encoder.load_state_dict(state, strict=True)
 encoder.eval()
 
 
@@ -72,28 +65,25 @@ async def home(request: Request):
 @app.post("/predict")
 async def predict(data: ModelInput):
 
-    # Convert to tensor
-    raw_np = np.array([[
+    raw_np = np.array([[ 
         data.Gender, data.AGE, data.Urea, data.Cr, data.HbA1c,
         data.Chol, data.TG, data.HDL, data.LDL, data.VLDL, data.BMI
     ]], dtype=np.float32)
 
     raw_tensor = torch.tensor(raw_np)
 
-    # Encode to 4 features
+    # Encode into 4 latent features
     with torch.no_grad():
         encoded = encoder(raw_tensor).numpy()
 
-    # RF prediction
     pred = model.predict(encoded)[0]
 
     try:
         probs = model.predict_proba(encoded)[0]
-        prob_N = float(probs[0])
-        prob_Y = float(probs[1])
+        prob_N, prob_Y = float(probs[0]), float(probs[1])
     except:
-        prob_Y = 1.0 if pred == 1 else 0.0
-        prob_N = 1.0 - prob_Y
+        prob_Y = float(pred)
+        prob_N = 1 - prob_Y
 
     prediction_label = "Y" if pred == 1 else "N"
 
