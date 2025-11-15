@@ -10,13 +10,9 @@ import torch
 import torch.nn as nn
 
 
-# ==============================
-# FASTAPI APP
-# ==============================
-
 app = FastAPI()
 
-# Enable CORS so frontend can call backend
+# Allow frontend -> backend communication
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,16 +21,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# ==============================
-# LOAD MODELS
-# ==============================
-
-# 1️⃣ Load RandomForest
+# Load RandomForest
 model = joblib.load("AE_RFC.joblib")
 
 
-# 2️⃣ Rebuild the EXACT encoder architecture from your notebook
+# Encoder architecture from your Autoencoder
 class Encoder(nn.Module):
     def __init__(self, input_dim=11, latent_dim=4):
         super().__init__()
@@ -50,22 +41,14 @@ class Encoder(nn.Module):
         return self.encoder(x)
 
 
-# 3️⃣ Load trained encoder weights
+# Load encoder weights (you saved only encoder)
 encoder = Encoder()
 encoder.load_state_dict(torch.load("encoder_model.pth", map_location="cpu"))
 encoder.eval()
 
 
-# ==============================
-# TEMPLATE ENGINE
-# ==============================
-
 templates = Jinja2Templates(directory="templates")
 
-
-# ==============================
-# INPUT MODEL (11 FEATURES)
-# ==============================
 
 class ModelInput(BaseModel):
     Gender: int
@@ -81,10 +64,6 @@ class ModelInput(BaseModel):
     BMI: float
 
 
-# ==============================
-# ROUTES
-# ==============================
-
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("frontend.html", {"request": request})
@@ -93,29 +72,19 @@ async def home(request: Request):
 @app.post("/predict")
 async def predict(data: ModelInput):
 
-    # STEP 1 → Convert raw inputs to numpy
+    # Convert to tensor
     raw_np = np.array([[
-        data.Gender,
-        data.AGE,
-        data.Urea,
-        data.Cr,
-        data.HbA1c,
-        data.Chol,
-        data.TG,
-        data.HDL,
-        data.LDL,
-        data.VLDL,
-        data.BMI
+        data.Gender, data.AGE, data.Urea, data.Cr, data.HbA1c,
+        data.Chol, data.TG, data.HDL, data.LDL, data.VLDL, data.BMI
     ]], dtype=np.float32)
 
-    # Convert to tensor
     raw_tensor = torch.tensor(raw_np)
 
-    # STEP 2 → Encode using your Autoencoder
+    # Encode to 4 features
     with torch.no_grad():
-        encoded = encoder(raw_tensor).numpy()   # Shape: (1,4)
+        encoded = encoder(raw_tensor).numpy()
 
-    # STEP 3 → Predict using RandomForest
+    # RF prediction
     pred = model.predict(encoded)[0]
 
     try:
@@ -126,7 +95,6 @@ async def predict(data: ModelInput):
         prob_Y = 1.0 if pred == 1 else 0.0
         prob_N = 1.0 - prob_Y
 
-    # STEP 4 → Format label
     prediction_label = "Y" if pred == 1 else "N"
 
     return {
