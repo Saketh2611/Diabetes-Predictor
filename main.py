@@ -50,7 +50,7 @@ class Encoder(nn.Module):
 
 # 3️⃣ Load saved encoder weights
 encoder = Encoder()
-encoder.load_state_dict(torch.load("encoder.pth", map_location="cpu"))
+encoder.load_state_dict(torch.load("encoder_model.pth", map_location="cpu"))
 encoder.eval()
 
 
