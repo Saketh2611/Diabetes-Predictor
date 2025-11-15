@@ -16,7 +16,7 @@ import torch.nn as nn
 
 app = FastAPI()
 
-# Enable CORS (required for your frontend fetch)
+# Enable CORS so frontend can call backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,21 +34,23 @@ app.add_middleware(
 model = joblib.load("AE_RFC.joblib")
 
 
-# 2️⃣ Define PyTorch Encoder class (IMPORTANT: match your notebook exactly)
+# 2️⃣ Rebuild the EXACT encoder architecture from your notebook
 class Encoder(nn.Module):
-    def __init__(self):
+    def __init__(self, input_dim=11, latent_dim=4):
         super().__init__()
-        self.layer1 = nn.Linear(11, 8)
-        self.layer2 = nn.Linear(8, 4)  # latent size = 4
-        self.relu = nn.ReLU()
+        self.encoder = nn.Sequential(
+            nn.Linear(input_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, latent_dim)
+        )
 
     def forward(self, x):
-        x = self.relu(self.layer1(x))
-        x = self.layer2(x)
-        return x
+        return self.encoder(x)
 
 
-# 3️⃣ Load saved encoder weights
+# 3️⃣ Load trained encoder weights
 encoder = Encoder()
 encoder.load_state_dict(torch.load("encoder_model.pth", map_location="cpu"))
 encoder.eval()
@@ -91,9 +93,7 @@ async def home(request: Request):
 @app.post("/predict")
 async def predict(data: ModelInput):
 
-    # ---------------------------
-    # STEP 1: RAW INPUT → NUMPY
-    # ---------------------------
+    # STEP 1 → Convert raw inputs to numpy
     raw_np = np.array([[
         data.Gender,
         data.AGE,
@@ -108,18 +108,14 @@ async def predict(data: ModelInput):
         data.BMI
     ]], dtype=np.float32)
 
-    # Convert to PyTorch tensor
+    # Convert to tensor
     raw_tensor = torch.tensor(raw_np)
 
-    # ---------------------------
-    # STEP 2: ENCODE USING AE
-    # ---------------------------
+    # STEP 2 → Encode using your Autoencoder
     with torch.no_grad():
-        encoded = encoder(raw_tensor).numpy()  # shape = (1, latent_dim=4)
+        encoded = encoder(raw_tensor).numpy()   # Shape: (1,4)
 
-    # ---------------------------
-    # STEP 3: RANDOM FOREST PREDICT
-    # ---------------------------
+    # STEP 3 → Predict using RandomForest
     pred = model.predict(encoded)[0]
 
     try:
@@ -130,12 +126,9 @@ async def predict(data: ModelInput):
         prob_Y = 1.0 if pred == 1 else 0.0
         prob_N = 1.0 - prob_Y
 
-    # Convert label
+    # STEP 4 → Format label
     prediction_label = "Y" if pred == 1 else "N"
 
-    # ---------------------------
-    # RETURN RESPONSE
-    # ---------------------------
     return {
         "prediction_label": prediction_label,
         "probability_Y": prob_Y,
