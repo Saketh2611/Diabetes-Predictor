@@ -78,10 +78,19 @@ async def home(request: Request):
 
 @app.post("/predict")
 async def predict(data: ModelInput):
-    # 1) assemble raw vector in same column order as training
+    # 1) assemble raw vector in the *CORRECT* training order
     raw = np.array([[
-        data.Gender, data.AGE, data.Urea, data.Cr, data.HbA1c,
-        data.Chol, data.TG, data.HDL, data.LDL, data.VLDL, data.BMI
+        data.AGE,       # 1. Age
+        data.Gender,    # 2. Gender
+        data.BMI,       # 3. BMI
+        data.HbA1c,     # 4. HbA1c
+        data.Chol,      # 5. Chol
+        data.TG,        # 6. TG
+        data.HDL,       # 7. HDL
+        data.LDL,       # 8. LDL
+        data.VLDL,      # 9. VLDL
+        data.Urea,      # 10. Urea
+        data.Cr         # 11. Cr
     ]], dtype=np.float32)
 
     # 2) scale using saved scaler (if available)

@@ -109,22 +109,21 @@
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      // Collect values
+      // Collect values in the correct training order
       const data = {
-        Gender: document.getElementById("gender").value === "M" ? 1 : 0,
         AGE: parseFloat(document.getElementById("age").value),
-        Urea: parseFloat(document.getElementById("urea").value),
-        Cr: parseFloat(document.getElementById("creatinine").value),
+        Gender: document.getElementById("gender").value === "M" ? 1 : 0,
+        BMI: parseFloat(document.getElementById("bmi").value),
         HbA1c: parseFloat(document.getElementById("hba1c").value),
         Chol: parseFloat(document.getElementById("cholesterol").value),
         TG: parseFloat(document.getElementById("triglycerides").value),
         HDL: parseFloat(document.getElementById("hdl").value),
         LDL: parseFloat(document.getElementById("ldl").value),
         VLDL: parseFloat(document.getElementById("vldl").value),
-        BMI: parseFloat(document.getElementById("bmi").value)
+        Urea: parseFloat(document.getElementById("urea").value),
+        Cr: parseFloat(document.getElementById("creatinine").value)
       };
-
+      
       try {
         const response = await fetch("/predict", {
           method: "POST",
