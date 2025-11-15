@@ -69,22 +69,16 @@ The dataset contains anonymized biomedical measurements and a binary target colu
 3. Tuned RFC using `GridSearchCV` (5-fold CV)
 4. Compared performance and feature importances
 
-**Top Latent Features Correlated With**:
-- `Cr`
-- `Gender`
-- `Urea`
-- `AGE`
-
 > The autoencoder revealed non-obvious latent interactions that boosted performance.
 
 ---
 
 ## 📈 Results Comparison
 
-| Model            | Accuracy | Top Features           | Notes                             |
-|------------------|----------|------------------------|-----------------------------------|
-| RFC Baseline     | ~97%     | HbA1c, BMI, AGE        | Based on raw input features       |
-| AE + RFC         | ~98%     | Cr, Gender, Urea, AGE  | Autoencoder discovered new patterns |
+| Model            | Accuracy |    Notes                             |
+|------------------|----------|------------------------|-----------------|
+| RFC Baseline     | ~97%     |  Based on raw input features         |
+| AE + RFC         | ~97%     |  Autoencoder discovered new patterns |
 
 ---
 
@@ -112,6 +106,7 @@ Open either notebook to explore the full workflow:
 - 🌲 Scikit-learn (RFC + GridSearchCV)
 - 📊 Matplotlib, Seaborn
 - 🧮 Pandas, NumPy
+- Joblib
 
 ---
 
