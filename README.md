@@ -75,12 +75,14 @@ The dataset contains anonymized biomedical measurements and a binary target colu
 
 ## 📈 Results Comparison
 
-| Model            | Accuracy |    Notes                             |
-|------------------|----------|------------------------|-----------------|
-| RFC Baseline     | ~97%     |  Based on raw input features         |
-| AE + RFC         | ~97%     |  Autoencoder discovered new patterns |
+| Model        | Accuracy | Notes                               |
+| ------------ | -------- | ----------------------------------- |
+| RFC Baseline | ~97%     | Based on raw input features         |
+| AE + RFC     | ~97%     | Autoencoder discovered new patterns |
+
 
 ---
+
 
 ## 📊 Example Outputs
 
