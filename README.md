@@ -64,7 +64,7 @@ The dataset contains anonymized biomedical measurements and a binary target colu
 ## 🚀 Model 2: Autoencoder + Random Forest
 
 1. Trained an **autoencoder** on input features for 300 epochs
-   - Compressed input to a **5D latent vector**
+   - Compressed input to a **4D latent vector**
 2. Used the **latent representation** as input to RFC
 3. Tuned RFC using `GridSearchCV` (5-fold CV)
 4. Compared performance and feature importances
