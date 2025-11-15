@@ -4,406 +4,156 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diabetes Risk Assessment</title>
-  <!-- Tailwind CSS CDN -->
+  <title>Diabetes Predictor</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      box-sizing: border-box;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .card-shadow {
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-
-    .input-focus:focus {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
-    }
-    
-    .low-risk {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    }
-
-    .high-risk {
-      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
-      color: #58151c; /* Darker text for high-risk for better contrast */
-    }
-    
-    .high-risk #risk-percentage, .high-risk #prediction-result {
-        color: #990011; /* Strong red for high-risk text */
-    }
-
-    .low-risk #risk-percentage, .low-risk #prediction-result {
-        color: #005662; /* Strong blue for low-risk text */
-    }
-  </style>
-  <style>
-    @view-transition {
-      navigation: auto;
-    }
-  </style>
 </head>
 
-<body class="min-h-full gradient-bg">
-  <main class="container mx-auto px-4 py-8 max-w-4xl">
-    <!-- Header -->
-    <header class="text-center mb-8">
-      <h1 id="app-title" class="text-4xl font-bold text-white mb-4">Diabetes Risk Assessment</h1>
-      <p id="subtitle" class="text-xl text-blue-100 mb-6">Biomedical Analysis for Diabetes Prediction</p>
-      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-2xl mx-auto">
-        <p id="disclaimer-text" class="text-blue-100 text-sm">⚠️ This tool is ready to be connected to your FastAPI & Joblib ML model. Enter patient data to get a prediction.</p>
-      </div>
-    </header>
+<body class="bg-gray-100 min-h-screen">
 
-    <!-- Assessment Form -->
-    <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
-      <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-        <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-        </svg>
-        Biomedical Assessment
-      </h2>
-      <form id="assessment-form" class="space-y-6">
-        <!-- Basic Information -->
-        <div class="grid md:grid-cols-2 gap-6">
-          <div>
-            <label for="age" class="block text-sm font-semibold text-gray-700 mb-2">Age (years)</label>
-            <input type="number" id="age" name="age" min="18" max="120" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="Enter patient age" value="50">
-          </div>
-          <div>
-            <label for="gender" class="block text-sm font-semibold text-gray-700 mb-2">Gender</label>
-            <select id="gender" name="gender" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200">
-              <option value="">Select gender</option>
-              <option value="M">Male</option>
-              <option value="F" selected>Female</option>
-            </select>
-          </div>
+  <div class="max-w-3xl mx-auto mt-10 bg-white p-8 rounded-2xl shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-6">Diabetes Risk Assessment</h1>
+
+    <form id="assessment-form" class="space-y-6">
+
+      <!-- Age & Gender -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label class="font-semibold">Age</label>
+          <input id="age" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
         </div>
 
-        <!-- Physical Measurements -->
-        <div class="bg-gray-50 rounded-lg p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Physical Measurements</h3>
-          <div class="grid md:grid-cols-1 gap-4">
-            <div>
-              <label for="bmi" class="block text-sm font-semibold text-gray-700 mb-2">BMI (Body Mass Index)</label>
-              <input type="number" id="bmi" name="bmi" step="0.1" min="10" max="60" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 25.3" value="24.0">
-            </div>
-          </div>
-        </div>
-
-        <!-- Blood Tests -->
-        <div class="bg-blue-50 rounded-lg p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Blood Test Results</h3>
-          <div class="grid md:grid-cols-2 gap-4">
-            <div>
-              <label for="hba1c" class="block text-sm font-semibold text-gray-700 mb-2">HbA1c (%)</label>
-              <input type="number" id="hba1c" name="hba1c" step="0.1" min="3" max="15" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 5.7" value="4.9">
-            </div>
-            <div>
-              <label for="creatinine" class="block text-sm font-semibold text-gray-700 mb-2">Creatinine (mg/dL)</label>
-              <input type="number" id="creatinine" name="creatinine" step="0.1" min="0.1" max="10" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 1.0" value="46">
-            </div>
-            <div>
-              <label for="urea" class="block text-sm font-semibold text-gray-700 mb-2">Urea (mg/dL)</label>
-              <input type="number" id="urea" name="urea" step="0.1" min="5" max="200" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 30" value="4.7">
-            </div>
-            <div>
-              <label for="triglycerides" class="block text-sm font-semibold text-gray-700 mb-2">Triglycerides (mg/dL)</label>
-              <input type="number" id="triglycerides" name="triglycerides" step="0.1" min="20" max="1000" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 150" value="0.9">
-            </div>
-          </div>
-        </div>
-
-        <!-- Cholesterol Panel -->
-        <div class="bg-green-50 rounded-lg p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">Cholesterol Panel</h3>
-          <div class="grid md:grid-cols-2 gap-4">
-            <div>
-              <label for="hdl" class="block text-sm font-semibold text-gray-700 mb-2">HDL Cholesterol (mg/dL)</label>
-              <input type="number" id="hdl" name="hdl" step="0.1" min="10" max="150" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 45" value="2.4">
-            </div>
-            <div>
-              <label for="ldl" class="block text-sm font-semibold text-gray-700 mb-2">LDL Cholesterol (mg/dL)</label>
-              <input type="number" id="ldl" name="ldl" step="0.1" min="20" max="400" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 120" value="1.4">
-            </div>
-             <!-- ADDED VLDL FIELD -->
-            <div>
-              <label for="vldl" class="block text-sm font-semibold text-gray-700 mb-2">VLDL (mg/dL)</label>
-              <input type="number" id="vldl" name="vldl" step="0.1" min="0" max="100" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 0.5" value="0.5">
-            </div>
-            <div>
-              <label for="cholesterol" class="block text-sm font-semibold text-gray-700 mb-2">Total Cholesterol (mg/dL)</label>
-              <input type="number" id="cholesterol" name="cholesterol" step="0.1" min="50" max="500" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200" placeholder="e.g., 200" value="4.2">
-            </div>
-          </div>
-        </div>
-
-        <!-- Submit Button -->
-        <div class="text-center pt-6">
-          <button type="submit" id="assess-btn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-lg transform hover:scale-105 transition-all duration-200 shadow-lg">
-            <span id="btn-text">Analyze Diabetes Risk</span>
-            <div id="btn-loading" class="hidden flex items-center">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Processing...
-            </div>
-          </button>
-        </div>
-      </form>
-    </div>
-
-    <!-- Results Section -->
-    <div id="results-section" class="hidden">
-      <div id="result-card" class="rounded-2xl card-shadow p-8 text-white">
-        <h2 class="text-3xl font-bold mb-6 text-center">Assessment Results</h2>
-        <div class="grid md:grid-cols-2 gap-8">
-          <div class="text-center">
-            <div class="bg-white/20 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-4">
-              <span id="risk-percentage" class="text-4xl font-bold">0%</span>
-            </div>
-            <h3 class="text-xl font-semibold mb-2">Risk of Diabetes</h3>
-            <p id="risk-level" class="text-lg opacity-90">Calculating...</p>
-          </div>
-          <div>
-            <h3 class="text-xl font-semibold mb-4">Prediction</h3>
-            <div class="bg-white/20 rounded-lg p-4 mb-4">
-              <p id="prediction-result" class="text-2xl font-bold mb-2">Processing...</p>
-              <p id="prediction-confidence" class="opacity-90">Analysis in progress</p>
-            </div>
-            <div class="space-y-2">
-              <h4 class="font-semibold">Model Insights:</h4>
-              <ul id="risk-factors" class="list-disc list-inside space-y-1 opacity-90">
-                <li>Analysis pending...</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="mt-8 text-center">
-          <button id="new-assessment" class="bg-white/20 hover:bg-white/30 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200">
-            New Assessment
-          </button>
+        <div>
+          <label class="font-semibold">Gender</label>
+          <select id="gender" required class="w-full p-3 border rounded-lg">
+            <option value="">Select</option>
+            <option value="M">Male</option>
+            <option value="F">Female</option>
+          </select>
         </div>
       </div>
-    </div>
-  </main>
+
+      <!-- BMI -->
+      <div>
+        <label class="font-semibold">BMI</label>
+        <input id="bmi" required type="number" step="0.1"
+          class="w-full p-3 border rounded-lg" />
+      </div>
+
+      <!-- Blood test fields -->
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label class="font-semibold">HbA1c</label>
+          <input id="hba1c" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
+        </div>
+
+        <div>
+          <label class="font-semibold">Creatinine</label>
+          <input id="creatinine" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
+        </div>
+
+        <div>
+          <label class="font-semibold">Urea</label>
+          <input id="urea" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
+        </div>
+
+        <div>
+          <label class="font-semibold">Triglycerides (TG)</label>
+          <input id="triglycerides" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
+        </div>
+
+        <div>
+          <label class="font-semibold">HDL</label>
+          <input id="hdl" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
+        </div>
+
+        <div>
+          <label class="font-semibold">LDL</label>
+          <input id="ldl" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
+        </div>
+
+        <div>
+          <label class="font-semibold">VLDL</label>
+          <input id="vldl" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
+        </div>
+
+        <div>
+          <label class="font-semibold">Total Cholesterol</label>
+          <input id="cholesterol" required type="number" step="0.1"
+            class="w-full p-3 border rounded-lg" />
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit"
+        class="w-full py-3 bg-blue-600 text-white rounded-lg font-bold">
+        Predict
+      </button>
+    </form>
+
+    <!-- RESULTS -->
+    <div id="result-box" class="hidden mt-8 p-6 rounded-xl text-white text-center"></div>
+
+  </div>
 
   <script>
-    // --- FORM & API LOGIC ---
+    const form = document.getElementById("assessment-form");
+    const resultBox = document.getElementById("result-box");
 
-    // 1. Get all form elements
-    const assessmentForm = document.getElementById('assessment-form');
-    const assessBtn = document.getElementById('assess-btn');
-    const btnText = document.getElementById('btn-text');
-    const btnLoading = document.getElementById('btn-loading');
-    const resultsSection = document.getElementById('results-section');
-    const resultCard = document.getElementById('result-card');
-    const newAssessmentBtn = document.getElementById('new-assessment');
-
-    // 2. Form submission listener
-    assessmentForm.addEventListener('submit', async function(e) {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      
-      // Show loading state
-      setLoadingState(true);
 
-      // Collect and transform data
-      const formData = getFormData();
-      const modelInput = transformDataForModel(formData);
+      // Collect values
+      const data = {
+        Gender: document.getElementById("gender").value === "M" ? 1 : 0,
+        AGE: parseFloat(document.getElementById("age").value),
+        Urea: parseFloat(document.getElementById("urea").value),
+        Cr: parseFloat(document.getElementById("creatinine").value),
+        HbA1c: parseFloat(document.getElementById("hba1c").value),
+        Chol: parseFloat(document.getElementById("cholesterol").value),
+        TG: parseFloat(document.getElementById("triglycerides").value),
+        HDL: parseFloat(document.getElementById("hdl").value),
+        LDL: parseFloat(document.getElementById("ldl").value),
+        VLDL: parseFloat(document.getElementById("vldl").value),
+        BMI: parseFloat(document.getElementById("bmi").value)
+      };
 
       try {
-        // Fetch prediction from FastAPI backend
-        const predictionResult = await fetchPrediction(modelInput);
-        
-        // Display results
-        displayResults(predictionResult, modelInput);
-        showToast("Prediction completed successfully!", "success");
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
 
-      } catch (error) {
-        console.error("Prediction error:", error);
-        showToast("Failed to get prediction. Please try again.", "error");
-      } finally {
-        // Reset loading state
-        setLoadingState(false);
+        const res = await response.json();
+
+        // Show output box
+        resultBox.classList.remove("hidden");
+        resultBox.innerHTML = `
+          <h2 class="text-2xl font-bold mb-2">Prediction Result</h2>
+          <p class="text-xl">Patient is: <b>${res.prediction_label === "Y" ? "Diabetic" : "Not Diabetic"}</b></p>
+          <p class="mt-2">Probability (Y): <b>${(res.probability_Y * 100).toFixed(2)}%</b></p>
+          <p>Probability (N): <b>${(res.probability_N * 100).toFixed(2)}%</b></p>
+        `;
+
+        resultBox.style.background =
+          res.prediction_label === "Y"
+            ? "linear-gradient(135deg,#ff9a9e,#fecfef)"
+            : "linear-gradient(135deg,#4facfe,#00f2fe)";
+
+      } catch (err) {
+        alert("Failed to connect to FastAPI backend.");
+        console.error(err);
       }
     });
-    
-    // 3. Collect data from form
-    function getFormData() {
-      const form = new FormData(assessmentForm);
-      return {
-        age: parseFloat(form.get('age')),
-        gender: form.get('gender'),
-        bmi: parseFloat(form.get('bmi')),
-        hba1c: parseFloat(form.get('hba1c')),
-        creatinine: parseFloat(form.get('creatinine')),
-        urea: parseFloat(form.get('urea')),
-        triglycerides: parseFloat(form.get('triglycerides')),
-        hdl: parseFloat(form.get('hdl')),
-        ldl: parseFloat(form.get('ldl')),
-        vldl: parseFloat(form.get('vldl')), // Added VLDL
-        cholesterol: parseFloat(form.get('cholesterol')),
-      };
-    }
-
-    // 4. Transform data to match the model's expected input
-    function transformDataForModel(data) {
-      // This MUST match the feature names and order your joblib model was trained on
-      // Based on Notebook 2: ['Gender', 'AGE', 'Urea', 'Cr', 'HbA1c', 'Chol', 'TG', 'HDL', 'LDL', 'VLDL', 'BMI']
-      
-      // Map form fields to model feature names
-      return {
-        Gender: data.gender === 'M' ? 1 : 0, // Convert M/F to 1/0
-        AGE: data.age,
-        Urea: data.urea,
-        Cr: data.creatinine,
-        HbA1c: data.hba1c,
-        Chol: data.cholesterol,
-        TG: data.triglycerides,
-        HDL: data.hdl,
-        LDL: data.ldl,
-        VLDL: data.vldl, // Added VLDL
-        BMI: data.bmi
-      };
-      
-      // Note: If your model expects a specific 11-feature array/list, you would format it here:
-      // return [
-      //   data.gender === 'M' ? 1 : 0, data.age, data.urea, data.creatinine, 
-      //   data.hba1c, data.cholesterol, data.triglycerides, data.hdl, 
-      //   data.ldl, data.vldl, data.bmi
-      // ];
-      // Sending a JSON object with keys (like above) is often more robust.
-    }
-
-    // 5. Fetch prediction from the FastAPI backend
-    async function fetchPrediction(modelInput) {
-      // This is the endpoint you will create in your FastAPI app
-      const API_ENDPOINT = '/predict'; 
-
-      const response = await fetch(API_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(modelInput)
-      });
-
-      if (!response.ok) {
-        throw new Error(`API request failed with status ${response.status}`);
-      }
-
-      return await response.json();
-    }
-
-    // 6. Display results in the UI
-    function displayResults(modelResult, inputData) {
-      // Example modelResult = {"prediction_label": "Y", "probability_Y": 0.85, "probability_N": 0.15}
-      
-      const isDiabetic = modelResult.prediction_label === 'Y';
-      const riskProbability = modelResult.probability_Y;
-      
-      // Determine styling based on prediction
-      resultCard.className = 'rounded-2xl card-shadow p-8 transition-all duration-300 ';
-      if (isDiabetic) {
-        resultCard.classList.add('high-risk');
-      } else {
-        resultCard.classList.add('low-risk');
-      }
-
-      // Update content
-      const riskPercent = Math.round(riskProbability * 100);
-      document.getElementById('risk-percentage').textContent = `${riskPercent}%`;
-      document.getElementById('risk-level').textContent = isDiabetic ? 'High Risk' : 'Low Risk';
-      document.getElementById('prediction-result').textContent = isDiabetic ? 'Diabetic' : 'Non-Diabetic';
-      document.getElementById('prediction-confidence').textContent = `Model Confidence: ${Math.round(modelResult[isDiabetic ? 'probability_Y' : 'probability_N'] * 100)}%`;
-
-      // Update probability breakdown
-      const riskFactorsList = document.getElementById('risk-factors');
-      riskFactorsList.innerHTML = `
-        <li>Probability of Diabetes (Y): ${Math.round(modelResult.probability_Y * 100)}%</li>
-        <li>Probability of Non-Diabetes (N): ${Math.round(modelResult.probability_N * 100)}%</li>
-        <li class="pt-2 font-semibold">Key Inputs Provided:</li>
-        <li>HbA1c: ${inputData.HbA1c}%</li>
-        <li>Creatinine: ${inputData.Cr} mg/dL</li>
-        <li>BMI: ${inputData.BMI}</li>
-      `;
-
-      resultsSection.classList.remove('hidden');
-      resultsSection.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    // 7. New assessment button
-    newAssessmentBtn.addEventListener('click', function() {
-      assessmentForm.reset();
-      resultsSection.classList.add('hidden');
-      document.querySelector('main').scrollIntoView({ behavior: 'smooth' });
-    });
-
-    // --- HELPER FUNCTIONS ---
-
-    // 8. Loading state helper
-    function setLoadingState(isLoading) {
-      if (isLoading) {
-        btnText.classList.add('hidden');
-        btnLoading.classList.remove('hidden');
-        assessBtn.disabled = true;
-      } else {
-        btnText.classList.remove('hidden');
-        btnLoading.classList.add('hidden');
-        assessBtn.disabled = false;
-      }
-    }
-
-    // 9. Toast notification system
-    function showToast(message, type = 'info') {
-      const toast = document.createElement('div');
-      toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white font-semibold z-50 transform transition-all duration-300 ${
-        type === 'success' ? 'bg-green-500' : 
-        type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-      }`;
-      toast.textContent = message;
-      
-      document.body.appendChild(toast);
-      
-      // Animate in
-      setTimeout(() => {
-        toast.style.transform = 'translateX(0)';
-        toast.style.opacity = '1';
-      }, 10);
-      
-      // Animate out
-      setTimeout(() => {
-        toast.style.transform = 'translateX(100%)';
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
-    }
-    
-    // Set default form values for demonstration
-    function setDefaultValues() {
-        document.getElementById('age').value = 50;
-        document.getElementById('gender').value = 'F';
-        document.getElementById('bmi').value = 24.0;
-        document.getElementById('hba1c').value = 4.9;
-        document.getElementById('creatinine').value = 46;
-        document.getElementById('urea').value = 4.7;
-        document.getElementById('triglycerides').value = 0.9;
-        document.getElementById('hdl').value = 2.4;
-        document.getElementById('ldl').value = 1.4;
-        document.getElementById('vldl').value = 0.5;
-        document.getElementById('cholesterol').value = 4.2;
-    }
-    
-    // Call on page load
-    // setDefaultValues(); // Uncomment this line if you want the form pre-filled
-
   </script>
+
 </body>
 </html>
