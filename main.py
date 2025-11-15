@@ -97,7 +97,7 @@ async def predict(data: ModelInput):
     # 3) encode via encoder
     with torch.no_grad():
         tensor = torch.tensor(raw_scaled, dtype=torch.float32)
-        encoded = encoder(tensor).numpy()  # shape (1, latent_dim)
+        encoded = encoder(tensor).detach().numpy()  # shape (1, latent_dim)
 
     # 4) RF predict
     try:
