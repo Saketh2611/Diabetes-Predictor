@@ -54,7 +54,7 @@ else:
     # If scaler is missing, continue but warn in logs and DO NOT scale inputs.
     print(f"Warning: scaler file not found at {SCALER_PATH}. Inputs will NOT be scaled. This may break performance.")
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory="Templates")
 
 
 class ModelInput(BaseModel):
