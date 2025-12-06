@@ -1,0 +1,33 @@
+# Ignore OS files
+__pycache__/
+*.pyc
+
+# Ignore large binary files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.pdf
+*.docx
+*.pptx
+
+# Ignore datasets
+*.csv
+*.xlsx
+*.xls
+
+# Ignore notebooks
+*.ipynb
+
+# Ignore git repo
+.git/
+.gitignore
+
+# Ignore environment folders
+venv/
+env/
+
+# Ignore any output or logs
+logs/
+outputs/
+*.log
