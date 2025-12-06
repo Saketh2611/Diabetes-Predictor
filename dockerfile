@@ -11,23 +11,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# ---------- Install Python dependencies ----------
+# ---------- Install CPU-only PyTorch (FAST + SMALL) ----------
+RUN pip install --no-cache-dir torch==2.2.0+cpu --extra-index-url https://download.pytorch.org/whl/cpu
+
+# ---------- Install remaining Python dependencies ----------
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ---------- Copy ONLY needed project files ----------
+# ---------- Copy code ----------
 COPY main.py .
 COPY templates/ templates/
-
-# Copy ML model files explicitly
 COPY AE_RFC.joblib .
 COPY encoder_model.pth .
 COPY Scaler.joblib .
 
-# If you also need static files (CSS/JS)
-# COPY static/ static/
-
-# Render sets PORT automatically
 ENV PORT=8000
 EXPOSE 8000
 
